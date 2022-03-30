@@ -17,12 +17,12 @@ function App() {
     //   clientHeight.clientHeight
     // );
 
-    if (scrollHeight.scrollHeight - positionOfScrollTop.scrollTop <= clientHeight.clientHeight) {
+    if (
+      scrollHeight.scrollHeight - positionOfScrollTop.scrollTop <= clientHeight.clientHeight &&
+      !loading
+    ) {
       setPage(page + 1);
-    } else {
     }
-
-    console.log(page);
   };
 
   useEffect(() => {
@@ -36,7 +36,7 @@ function App() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `{
-        launchesPast(limit: ${page * 10}) {
+        launchesPast(offset:${page * 10}, limit:10) {
           mission_name
           id
           launch_year
@@ -46,7 +46,12 @@ function App() {
     })
       .then((res) => res.json())
       .then((data) => {
-        setLaunches(data.data.launchesPast);
+        if (data.data.launchesPast) {
+          setLaunches([...launches, ...data.data.launchesPast]);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
         setLoading(false);
       });
   };
@@ -57,7 +62,7 @@ function App() {
       <div className="launches-container">
         <h1>Launches</h1>
         <div className="launches" onScroll={handleScroll}>
-          {launches &&
+          {launches.length > 0 &&
             launches.map((launch) => (
               <div key={launch.id} className="launches-element">
                 <IoRocket className="rocket-icon" />
