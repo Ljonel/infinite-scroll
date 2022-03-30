@@ -12,15 +12,17 @@ function App() {
     const clientHeight = e.currentTarget; //size of client screen
     const scrollHeight = e.currentTarget; //height of scroll -> depends of amount of data in div
 
-    console.log(
-      scrollHeight.scrollHeight - positionOfScrollTop.scrollTop, // we know that we are in the bottom of the div -> load more data
-      clientHeight.clientHeight
-    );
+    // console.log(
+    //   scrollHeight.scrollHeight - positionOfScrollTop.scrollTop, // we know that we are in the bottom of the div -> load more data
+    //   clientHeight.clientHeight
+    // );
 
     if (scrollHeight.scrollHeight - positionOfScrollTop.scrollTop <= clientHeight.clientHeight) {
       setPage(page + 1);
     } else {
     }
+
+    console.log(page);
   };
 
   useEffect(() => {
