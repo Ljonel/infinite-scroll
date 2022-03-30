@@ -3,7 +3,7 @@ import "./App.css";
 import { IoRocket } from "react-icons/io5";
 
 function App() {
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [launches, setLaunches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -16,39 +16,40 @@ function App() {
     //   scrollHeight.scrollHeight - positionOfScrollTop.scrollTop, // we know that we are in the bottom of the div -> load more data
     //   clientHeight.clientHeight
     // );
+    // console.log(`Scroll height: ${scrollHeight.scrollHeight}`);
+    // console.log(`Scroll Top: ${positionOfScrollTop.scrollTop}`);
+    // console.log(`Client Height: ${clientHeight.clientHeight}`);
 
-    if (scrollHeight.scrollHeight - positionOfScrollTop.scrollTop <= clientHeight.clientHeight) {
+    if (
+      scrollHeight.scrollHeight - positionOfScrollTop.scrollTop <= clientHeight.clientHeight &&
+      !loading
+    ) {
       setPage(page + 1);
     } else {
     }
-
-    console.log(page);
   };
-
   useEffect(() => {
     getLaunches(page);
   }, [page]);
 
-  const getLaunches = (page: number) => {
+  const getLaunches = async (page: number) => {
     setLoading(true);
-    fetch(`https://api.spacex.land/graphql/`, {
+    const response = await fetch(`https://api.spacex.land/graphql/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `{
-        launchesPast(limit: ${page * 10}) {
+        launchesPast(limit: 10, offset: ${page * 10}){
           mission_name
           id
           launch_year
         }
       }`,
       }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setLaunches(data.data.launchesPast);
-        setLoading(false);
-      });
+    });
+    const data = await response.json();
+    setLaunches([...launches, ...data.data.launchesPast]);
+    setLoading(false);
   };
 
   return (
@@ -62,7 +63,7 @@ function App() {
               <div key={launch.id} className="launches-element">
                 <IoRocket className="rocket-icon" />
                 <div className="launches-content">
-                  <h1> {launch.mission_name}</h1>
+                  <h1> {launch.id}</h1>
                   <p> Launch year: {launch.launch_year}</p>
                 </div>
               </div>
